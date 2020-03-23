@@ -59,7 +59,7 @@ We further propose a framework for mapping RDF graphs to property graphs on the 
 \section{Introduction}
 % Please note that the first paragraph of a section or subsection is not indented. The first paragraph that follows a table, figure, equation etc. does not need an indent, either.
 
-Increasing amounts of scientific and social data are published in the form of Resource Description Framework (RDF)~\cite{rdf}. It now constitutes a large open data cloud. DBpedia~\cite{dbpedia} and Wikidata~\cite{wikidata} are good example. SPARQL~\cite{sparql} is a standardized interface for RDF. However, the usecases through thouse interface are still limited. Although the standardized format and interface contributed the integrated large data could, further interface is expected to maximize the value of RDF datasets. 
+Increasing amounts of scientific and social data are published in the form of Resource Description Framework (RDF)~\cite{rdf}. It now constitutes a large open data cloud. DBpedia~\cite{dbpedia} and Wikidata~\cite{wikidata} are good example. SPARQL~\cite{sparql} is a standardized interface for RDF. However, the use cases through thouse interface are still limited. Although the standardized format and interface contributed the integrated large data could, further interface is expected to maximize the value of RDF datasets. 
 % Although RDF data can be queried using the SPARQL language~\cite{sparql} in a flexible way, SPARQL is not dedicated to traversal of graphs and has a limitation in implementing graph analysis algorithms.
 Recently, the property graph model~\cite{angles1,angles2} have been attracting increasing attention in the context of graph analysis; various graph database engines, including Neo4j~\cite{neo4j}, Oracle Database~\cite{oracle}, and Amazon Neptune~\cite{neptune}, adopt this model. These graph database engines support algorithms for traversing or analyzing graphs. However, currently not many datasets are consistently described in the property graph model, so the application of these powerful engines are limited.
 
@@ -71,23 +71,36 @@ users still cannot control the mapping for their specific use cases.
 
 Here, we redefine the property graph model incorporating the differences in existing models and also propose serialization formats based on the data model. We further propose a graph to graph mapping framework on the basis of the Graph to Graph Mapping Language (G2GML). Using this mapping framework, accumulated graph data described in RDF can be converted into property graphs, which can then be loaded into several graph database engines for further analysis. We will show several use cases where publicly available RDF data is extracted and convert to property graphs and also evaluate the performance. This work provides the foundation of interoperability of knowledge graphs.
 
-The contributions of this papers are 1) development of Graph to Graph Mapping Language 2) proposal of common property graph model and serialization 3) development of G2G mapper 4) construction of knowledge graph resources in a common format as Graph Archive.
+%The contributions of this papers are 1) development of G2GML, 2) proposal of common property graph model and its serialization, 3) development of a prototype implementation, 4) construction of knowledge graph resources in a common format as Graph Archive.
 
+The main contributions of this papers are 1) language design of G2GML, 2) its prototype implementation. Additionally, we proposes 3) the common property graph model and its serialization, which are essential to make this mapping framework independent from the implementations of database systems.
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\section{G2G: Graph to Graph Mapping Framework}
+\section{Graph to Graph Mapping}
 
 \subsection{Overview}
 
-Here we illustrate the overview of the framework.
-G2G is a framework to describe mapping between RDF and property graphs for interoperable use of them. In this framework, users can specify mappings from RDF to property graphs in G2GML.
-This mapping is processed by a tool called G2G Mapper, which was implemented by authors (available on \url{https://github.com/g2glab/g2g}). This tool can convert RDF data retrieved from SPARQL endpoints or from local files into PG format and then into specific formats for each of the database implementations.
+Here we illustrate the overview of the graph to graph mapping (G2G mapping) framework (Figure~\ref{fig:dataflow}).
+
+In this framework, users describe mappings from RDF to property graphs in G2GML.
+According to this G2GML description, a G2GML implementation converts input RDF dataset into property graph dataset. Optionally, the new dataset can be also saved in specific formats for loading it into the major graph database implementations.
+
+%G2G is a framework to perform mapping between RDF and property graphs for interoperable use of them. In this framework, users can describe mappings from RDF to property graphs in G2GML.
+%G2GML implementation converts RDF dataset into property graph dataset. Optionally, the new dataset can be also saved in specific formats for loading it into the major graph database implementations.
 
 The G2GML is a declarative language which consists of pairs of RDF graph patterns and property graph patterns. 
-An intuitive meaning of a G2GML description is a map from  RDF subgraphs that matches the specified patterns to specified components of property graphs.
+An intuitive meaning of a G2GML description is a map from RDF subgraphs that matches the specified patterns to specified components of property graphs.
 
 As an entry point to property graph, we define the Property Graph format, which is based on the Property Graph model.
 
+
+ 
+\begin{figure}
+\center
+\includegraphics[width=1.0\textwidth]{dataflow.png}
+\caption{Overview of the mapping from RDF to property graph}
+\label{fig:dataflow}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%
@@ -100,11 +113,10 @@ An RDF triple $(s, p, o)$ is an element of $(I \cup B) \times I \times (I \cup B
 \end{prel}
 
 \par
-In this paper, we call maps written in G2GML as \textit{G2G maps}.
-A \textit{G2G map} consists of one or more \textit{node maps} and \textit{edge maps}.
+A map described by G2GML consists of one or more \textit{node maps} and \textit{edge maps}.
 A \textit{node map} is a function that maps from an RDF graph to a set of \textit{PG nodes}. 
 Similarly, an \textit{edge map} is a function that maps from an RDF graph to a set of \textit{PG edges}.
-The meaning of a G2G map is a function that maps from an RDF graph to a set of PG nodes and edges that is mapped by  all its node and edge maps.
+The meaning of a G2GML description is a function that maps from an RDF graph to a set of PG nodes and edges that is mapped by all its node and edge maps.
 Here we define the syntax of PG node pattern as follows. 
 Note that \texttt{NEWLINE} is an abstract symbol corresponding to appropriate character to start a new line. 
 
@@ -137,14 +149,14 @@ A node map is described as a pair of a PG node pattern  and an RDF graph pattern
 \end{defi}
 
 A PG node pattern specifies a node, a label and properties to be generated by the map. The \texttt{NODE} symbol specifies ID of the generated node, which is replaced by the resource retrieved by RDF graph. The \texttt{LABEL} symbol specifies the label of the resultant node. A label also works as the name of the node map which is referred from edge maps.
-Therefore an identifier of a label must be unique in a  G2GML map.
+Therefore an identifier of a label must be unique in a G2GML description.
 Each node pattern contains zero or more properties as \texttt{prop\_list}.
 A \texttt{property} is a pair of \texttt{PROP\_NAME} and \texttt{PROP\_VAL} that describes properties of nodes.
 Identifiers \texttt{NODE} and \texttt{PROP\_VAL} must be names of variables in the succeeding RDF graph pattern, while \texttt{LABEL} and \texttt{PROP\_NAME} are regarded as text literals.
  
 A PG edge pattern specifies a pattern of edge, the label, the properties and the source node and the destination node.
 Here we define the syntax of PG edge pattern as follows.
-Note that \texttt{SRC}, \texttt{SRC\_LAB}, \texttt{EDGE}, \texttt{EDGE\_LAB}, \textt{DST} and \texttt{DST\_LAB} are all identifiers.
+Note that \texttt{SRC}, \texttt{SRC\_LAB}, \texttt{EDGE}, \texttt{EDGE\_LAB}, \texttt{DST} and \texttt{DST\_LAB} are all identifiers.
 \begin{defi}[EBNF notation of PG edge pattern]
 \leavevmode
 \begin{verbatim}
@@ -163,7 +175,7 @@ For this reason, \texttt{SRC\_LAB} and \texttt{DST\_LAB} must be defined in othe
 
 The resultant edges can be either directed or undirected. If we use '\texttt{->}' as delimiter between an edge part and a destination part, the edge will be a directed edge.
 
-In node maps and edge maps, a variable bound to \texttt{PROP\_VAL} may have multiple candidates against single node or edge. If multiple candidate exists, they are concatenated into an array in the manner of \texttt{GROUP\_CONCAT} in SPARQL. If \texttt{EDGE} is omitted in an edge map, such candidates are concatenated  within groups of tuples of \texttt{SRC} and \texttt{DST}.
+In node maps and edge maps, a variable bound to \texttt{PROP\_VAL} may have multiple candidates against single node or edge. If multiple candidate exists, they are concatenated into an array in the manner of GROUP\_CONCAT in SPARQL. If \texttt{EDGE} is omitted in an edge map, such candidates are concatenated  within groups of tuples of \texttt{SRC} and \texttt{DST}.
 
 
 %%%%%%%%%%%
@@ -240,7 +252,7 @@ More formally, we describe the PG format in the EBNF notation as follows.
 %     \item Properties (key-value pairs) are listed under the \texttt{properties} element.
 % \end{itemize}
 
-Furthermore, we have implemented command-line tools to convert between PG format and JSON-PG format which follows the JSON syntax in adition to the above definition, as well as to transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe property graph data begin used in existing graph databases (see \url{https://github.com/g2glab/pg}).
+Furthermore, we have implemented command-line tools to convert between PG format and JSON-PG format which follows the JSON syntax in adition to the above definition, as well as to transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe property graph data being used in existing graph databases (see \url{https://github.com/g2glab/pg}).
 
 \begin{figure}[!t]
 \begin{scriptsize}
@@ -384,7 +396,6 @@ The node labels in edge maps must be defined in node maps  (described in section
 \subsubsection{Multi Edges}
 When a pair of RDF resources has multiple relationships, those will be converted not to a single PG edge with multiple properties but to multiple PG edges. The G2GML in Figure~\ref{fig:example-g2g} generates two PG edges for the RDF data in Figure~\ref{fig:example-rdf2} for keeping the information that Alice emailed Bob twice.
 
-
 \begin{figure}[!t]
 \begin{scriptsize}
 \begin{verbatim}
@@ -468,28 +479,14 @@ Each PG property can have multiple values. When a RDF resource has the same data
 \section{Use Cases}
  
 We present several use cases to show how to apply G2G mapping framework, where we utilize publicly available RDF datasets through SPARQL endpoints.
- 
-Figure~\ref{fig:dataflow} shows the overview of the mapping.
-In this framework, users can specify mappings from RDF to property graphs in G2GML.
-This mapping is processed by a tool called G2G Mapper, which was implemented by authors (available on \url{https://github.com/g2glab/g2g}). This tool retrieves RDF dataset from SPARQL endpoints or from local files, then coverts it into PG format. Optionally, the new dataset can be also saved in specific formats for loading it into the major graph database implementations.
- 
-The G2GML is a declarative language which consists of pairs of RDF graph patterns and property graph patterns. 
-An intuitive meaning of a G2GML description is mapping RDF subgraphs that matches the specified patterns to specified components of property graphs.
- 
- 
-\begin{figure}
-\center
-\includegraphics[width=1.0\textwidth]{dataflow.png}
-\caption{Overview of the mapping from RDF to property graph}
-\label{fig:dataflow}
-\end{figure}
+
  
 \subsection{Using Wikidata}
  
 Here we present an example of mapping using a disease dataset from Wikidata. Wikidata is a useful source of open data from various domains, and it is available in the form of RDF through the SPARQL interface.
  
 In Wikidata, each disease is associated with zero or more genes and drugs.
-The subset of Wikidata can be extracted using G2G framework by writing a mapping file in G2GML (see the following list).
+The subset of Wikidata can be extracted using G2G mapping framework by writing a mapping file in G2GML (see the following list).
 Here, we focus on human genes. So we specified the necessary conditions in G2GML.
 Each entity of ‘Q12136: disease’ can have property ‘P2176: drug used for treatment’, thereby linked to items of ‘Q12140: medication’. Also, each disease can have property ‘P2293: genetic association’, thereby linked to items of ‘Q7186: gene’.
  
@@ -555,14 +552,6 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 % \end{figure}
  
 \subsection{Using DBpedia}
- 
-Here we describe a framework for mapping RDF graphs to property graphs.
-Figure~\ref{fig:dataflow} shows the overview of the framework.
-In this framework, users can specify mappings from RDF to property graphs in G2GML.
-This mapping is processed by a tool called G2G Mapper, which was implemented by authors (available on \url{https://github.com/g2glab/g2g}). This tool can convert RDF data retrieved from SPARQL endpoints or from local files into PG format and then into specific formats for each of the database implementations.
- 
-The G2GML is a declarative language which consists of pairs of RDF graph patterns and property graph patterns. 
-An intuitive meaning of a G2GML description is mapping RDF subgraphs that matches the specified patterns to specified components of property graphs. 
  
 Figure~\ref{fig:conversion} schematically shows an example of the G2G mapping to convert RDF data retrieved from DBpedia into property graph data. 
 When we focus on a relationships where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, such information can be represented in the property graph shown in the right side of the figure.
@@ -641,7 +630,7 @@ SELECT DISTINCT m1.name, m2.name WHERE (m1)-[:same_group]-(m2)
 \label{fig:sparql}
 \end{figure}
  
-Figure~\ref{fig:sparql} shows the SPARQL query to retrieve the pairs of musicians who are in the same group. After the G2G mapping, we can load the generated property graph data into graph databases, such as Oracle Labs PGX, and the query can be written in PGQL~\cite{pgql} (the query language of PGX).
+Figure~\ref{fig:sparql} shows the SPARQL query to retrieve the pairs of musicians who are in the same group. After the G2G mapping, we can load the generated property graph data into graph databases, such as Oracle Database, and the query can be written in PGQL~\cite{pgql} (the graph query language of Oracle Database).
 
 \begin{table}[h]
     \centering
@@ -660,23 +649,18 @@ Figure~\ref{fig:sparql} shows the SPARQL query to retrieve the pairs of musician
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Availability}
-
-\subsection{G2G Mapper}
-
-G2G mapper is implemented in JavaScript, and can be executed using Node.js in command line. It has endpoint mode and local file mode. Local file mode uses Apache Jena package to load and extract subset of the the loaded dataset by specifying SPARQL pattern. An example of endpoint mode is as follows:
+The prototype implementation is written in JavaScript, and can be executed using Node.js in command line. It has endpoint mode and local file mode. Local file mode uses Apache Jena ARQ to execute SPARQL queries internally, while endpoint mode accesses SPARQL endpoints via the Internet. An example of the usage in endpoint mode is as follows:
 
 \texttt{\$ g2g musician.g2g http://dbpedia.org/sparql}
 
-\noindent where the first argument is G2GML mapping file and the second argument is target SPARQL endpoint from which to extract RDF data.
+\noindent where the first argument is a G2GML mapping file and the second argument is the target SPARQL endpoint which provides the source RDF dataset. %from which the RDF dataset is extracted.
 
-Docker image is also available.
-
-Furthermore, demonstration cite of G2G mapper is available (Figure~\ref{fig:sandbox}).
+Furthermore, its Docker image (\url{https://hub.docker.com/r/g2glab/g2g}) and a demonstration site of G2G mapping framework (\url{http://g2g.fun}) are also available (Figure~\ref{fig:sandbox}).
 
 \begin{figure}
 \center
 \includegraphics[width=1.0\textwidth]{sandbox.png}
-\caption{G2G sandbox}
+\caption{G2G mapping demonstration site}
 \label{fig:sandbox}
 \end{figure}
 
