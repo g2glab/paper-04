@@ -231,16 +231,16 @@ More formally, we describe the PG format in the EBNF notation as follows.
 \end{verbatim}
 \end{defi}
 
-Next, we describe the JSON-PG format which follows the JSON syntax in addition to the above definition of the property graph model. The JSON-PG format has the following characteristics, and an example of the format is shown in Figure~\ref{fig:example-json}. It is to be noted that, whereas the set of labels or property values are represented as arrays in JSON, those elements are supposed to have no specific order according to the property graph model.
+% Next, we describe the JSON-PG format which follows the JSON syntax in addition to the above definition of the property graph model. The JSON-PG format has the following characteristics, and an example of the format is shown in Figure~\ref{fig:example-json}. It is to be noted that, whereas the set of labels or property values are represented as arrays in JSON, those elements are supposed to have no specific order according to the property graph model.
 
-\begin{itemize}
-    \item Nodes and edges are listed under \texttt{nodes} and \texttt{edges} elements, respectively.
-    \item Edge direction is defined with the boolean element \texttt{undirected}. By default it is false (directed).
-    \item Labels are listed under the \texttt{labels} element.
-    \item Properties (key-value pairs) are listed under the \texttt{properties} element.
-\end{itemize}
+% \begin{itemize}
+%     \item Nodes and edges are listed under \texttt{nodes} and \texttt{edges} elements, respectively.
+%     \item Edge direction is defined with the boolean element \texttt{undirected}. By default it is false (directed).
+%     \item Labels are listed under the \texttt{labels} element.
+%     \item Properties (key-value pairs) are listed under the \texttt{properties} element.
+% \end{itemize}
 
-Furthermore, we have implemented command-line tools to convert between PG format and JSON-PG format, as well as to transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe property graph data begin used in existing graph databases (see \url{https://github.com/g2glab/pg}).
+Furthermore, we have implemented command-line tools to convert between PG format and JSON-PG format which follows the JSON syntax in adition to the above definition, as well as to transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe property graph data begin used in existing graph databases (see \url{https://github.com/g2glab/pg}).
 
 \begin{figure}[!t]
 \begin{scriptsize}
@@ -258,43 +258,43 @@ Furthermore, we have implemented command-line tools to convert between PG format
 \label{fig:example-pg}
 \end{figure}
 
-\begin{figure}[!t]
-\begin{scriptsize}
-\begin{verbatim}
-{
-  "nodes":[
-    {
-     "id":101,
-     "labels":["Person"],
-     "properties":{"name":["Alice"], "age":[15], "country":["United States"]}
-    },
-    {
-     "id":102,
-     "labels":["Person", "Student"],
-     "properties":{"name":["Bob"], "country":["Japan", "Germany"]}
-    }
-  ],https://ja.overleaf.com/project/5d6e87b11a254100014e487d
-  "edges":[
-    {
-     "from":101,
-     "to":102,
-     "undirected":true,
-     "labels":["sameSchool", "sameClass"],
-     "properties":{"since":[2012]}
-    },
-    {
-     "from":102,
-     "to":101,
-     "labels":["likes"],
-     "properties":{"since":[2015]}
-    }
-  ]
-}
-\end{verbatim}
-\end{scriptsize}
-\caption{Example of JSON-PG format}
-\label{fig:example-json}
-\end{figure}
+% \begin{figure}[!t]
+% \begin{scriptsize}
+% \begin{verbatim}
+% {
+%   "nodes":[
+%     {
+%      "id":101,
+%      "labels":["Person"],
+%      "properties":{"name":["Alice"], "age":[15], "country":["United States"]}
+%     },
+%     {
+%      "id":102,
+%      "labels":["Person", "Student"],
+%      "properties":{"name":["Bob"], "country":["Japan", "Germany"]}
+%     }
+%   ],https://ja.overleaf.com/project/5d6e87b11a254100014e487d
+%   "edges":[
+%     {
+%      "from":101,
+%      "to":102,
+%      "undirected":true,
+%      "labels":["sameSchool", "sameClass"],
+%      "properties":{"since":[2012]}
+%     },
+%     {
+%      "from":102,
+%      "to":101,
+%      "labels":["likes"],
+%      "properties":{"since":[2015]}
+%     }
+%   ]
+% }
+% \end{verbatim}
+% \end{scriptsize}
+% \caption{Example of JSON-PG format}
+% \label{fig:example-json}
+% \end{figure}
 
 %%%%%%%%%%%%
 \subsection{Minimal Examples}
@@ -547,12 +547,12 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 \end{figure}
 %--code--code--code--code--code--
  
-\begin{figure}
-\center
-\includegraphics[width=1.0\textwidth]{neo4jexample2.png}
-\caption{Visualization on Neo4j}
-\label{fig:neo4jexample2.png}
-\end{figure}
+% \begin{figure}
+% \center
+% \includegraphics[width=1.0\textwidth]{neo4jexample2.png}
+% \caption{Visualization on Neo4j}
+% \label{fig:neo4jexample2.png}
+% \end{figure}
  
 \subsection{Using DBpedia}
  
@@ -680,10 +680,10 @@ Furthermore, demonstration cite of G2G mapper is available (Figure~\ref{fig:sand
 \label{fig:sandbox}
 \end{figure}
 
-\subsection{Graph Archive}
-We created several G2GML mappings to extract public RDF from endpoint and construct knowledge graphs in PG format and resulting knowledge graphs as Graph Archive.
+% \subsection{Graph Archive}
+% We created several G2GML mappings to extract public RDF from endpoint and construct knowledge graphs in PG format and resulting knowledge graphs as Graph Archive.
 
-In the listed knowledge graphs, we compared the number of nodes and edges between RDF and property graphs.
+% In the listed knowledge graphs, we compared the number of nodes and edges between RDF and property graphs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
