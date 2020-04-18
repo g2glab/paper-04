@@ -18,9 +18,9 @@
 \newtheorem{defi}[theorem]{Definition}
 \newtheorem*{prel}{Preliminaries}
 %
-\title{G2GML: Graph to Graph Mapping Language for Bridging RDF and Property Graphs}
+\title{G2GML: Graph to Graph Mapping Language for Bridging RDF and Property Graphs} 
 %
-\titlerunning{G2GML: Graph to Graph Mapping Lanugage}
+\titlerunning{G2GML: Graph to Graph Mapping Language}
 %\titlerunning{Interoperable Use of RDF and Property Graph}
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
@@ -45,60 +45,54 @@ Lifematics Inc., Tokyo 101-0041, Japan\\
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-% The abstract should briefly summarize the contents of the paper in 15--250 words.
-How can we maximize the value of accumulated RDF data? Although increasing amounts of scientific and social data are described as RDF, their use cases are still limited. Allowing access to the RDF datasets through various interface beyond the SPARQL interface will be expected. Importing the RDF datasets into various graph analysis engines will increase the values of the datasets.  
-However, interoperable management of such graph data is challenging due to the differences in existing models and formats depending on various implementations. Here, we redefine the property graph model incorporating the differences in existing models and propose exchangeable serialization formats for property graphs, which can be converted into specific formats for each of the databases. 
-The serialization formats independent of certain database implementations will increase the interoperability of graph databases and will make it easier for users to import accumulated graph data.
-We further propose a framework for mapping RDF graphs to property graphs on the basis of the Graph to Graph Mapping Language (G2GML). Using this framework, accumulated graph data described in RDF can be converted to property graphs, which can then be loaded into several graph database engines for further analysis. 
-%This work provides interoperability not only between property graph formats but also between RDF and proper graphs.
-%Future works include implementing and utilizing graph algorithms to make the most of the accumulated data in various analytical engines.
+Increasing amounts of scientific and social data are presented in the resource description framework (RDF); however, their use cases remain limited. Maximizing the value of accumulated RDF data is therefore considered a challenge, and efforts have been made to this end, including allowing access to RDF datasets through various interfaces beyond SPARQL and importing RDF datasets into various graph analysis engines.  
+However, the interoperable management of graph data is challenging due to differences in existing models and formats, which depend on various implementations. In this study, we redefine the property graph (PG) model incorporating the differences in existing models and propose exchangeable serialization formats for PGs, which can be converted into specific formats for each database. 
+The serialization formats that are independent of certain database implementations increase the interoperability of graph databases and make it easier for users to import accumulated graph data.
+We further propose a framework for mapping RDF graphs to PGs based on the graph to graph mapping language (G2GML). Using this framework, accumulated graph data described in RDF can be converted into PGs, which can then be loaded into several graph database engines for further analysis. 
 
 \keywords{RDF \and Property Graph \and Graph Database}
 \end{abstract}
 
 \section{Introduction}
-% Please note that the first paragraph of a section or subsection is not indented. The first paragraph that follows a table, figure, equation etc. does not need an indent, either.
 
-Increasing amounts of scientific and social data are published in the form of Resource Description Framework (RDF)~\cite{rdf}. It now constitutes a large open data cloud. DBpedia~\cite{dbpedia} and Wikidata~\cite{wikidata} are good example. SPARQL~\cite{sparql} is a standardized interface for RDF. However, the use cases through thouse interface are still limited. Although the standardized format and interface contributed the integrated large data could, further interface is expected to maximize the value of RDF datasets. 
-% Although RDF data can be queried using the SPARQL language~\cite{sparql} in a flexible way, SPARQL is not dedicated to traversal of graphs and has a limitation in implementing graph analysis algorithms.
-Recently, the property graph model~\cite{angles1,angles2} have been attracting increasing attention in the context of graph analysis; various graph database engines, including Neo4j~\cite{neo4j}, Oracle Database~\cite{oracle}, and Amazon Neptune~\cite{neptune}, adopt this model. These graph database engines support algorithms for traversing or analyzing graphs. However, currently not many datasets are consistently described in the property graph model, so the application of these powerful engines are limited.
+Increasing amounts of scientific and social data are being published in the form of the Resource Description Framework (RDF)~\cite{rdf}, which presently constitutes a large open data cloud. DBpedia~\cite{dbpedia} and Wikidata~\cite{wikidata} are good examples of such RDF datasets. SPARQL~\cite{sparql} is a protocol and query language that serves as a standardized interface for RDF data. This standardized format and interface enables the construction of integrated graph datasets. However, the lack of an interface for graph-based analysis and performant traversal limits use cases of the graph data.
 
-Considering this situation, it is valuable to develop a method to transform RDF into property graphs. One of the practical issues is the lack of a standardized model for property graphs. 
-Another issue is that transformation between them is not straightforward due to the differences between RDF and property graph models. 
-In RDF graphs, all information is expressed as the triple (node-edge-node), whereas in property graphs, arbitrary information can be contained in each of the nodes and edges as the key-value form. 
-Although this issue has been previously addressed on the basis of predefined transformations~\cite{hartig},
+Recently, the property graph (PG) model~\cite{angles1,angles2} has been attracting increasing attention in the context of graph analysis. Various graph database engines, including Neo4j~\cite{neo4j}, Oracle Database~\cite{oracle}, and Amazon Neptune~\cite{neptune} adopt this model. These graph database engines support algorithms for traversing or analyzing graphs. However, few datasets are consistently described in the PG model, such that the application of these powerful engines is limited.
+
+In light of this situation, developing a method to transform RDF into PG would be highly valuable. One of the practical issues faced by this challenge is the lack of a standardized PG model.
+Another issue is that the transformation between RDF and PG is not straightforward due to the differences in their models. 
+In RDF graphs, all information is expressed by a triple (node-edge-node), whereas in PGs, arbitrary information can be contained in each node and edge as the key-value form. 
+Although this issue was previously addressed on the basis of predefined transformations~\cite{hartig},
 users still cannot control the mapping for their specific use cases.
 
-Here, we redefine the property graph model incorporating the differences in existing models and also propose serialization formats based on the data model. We further propose a graph to graph mapping framework on the basis of the Graph to Graph Mapping Language (G2GML). Using this mapping framework, accumulated graph data described in RDF can be converted into property graphs, which can then be loaded into several graph database engines for further analysis. We will show several use cases where publicly available RDF data is extracted and convert to property graphs and also evaluate the performance. This work provides the foundation of interoperability of knowledge graphs.
+In this study, we redefine the PG model incorporating the differences in existing models and propose serialization formats based on the data model. We further propose a graph to graph mapping framework based on the graph to graph mapping language (G2GML). Employing this mapping framework, accumulated graph data described in the RDF can be converted into PGs, which can be loaded into several graph database engines for further analysis. We demonstrate several use cases, where publicly available RDF data is extracted and converted to PGs, and evaluate the performance. Thus, this study provides the foundation for the interoperability of knowledge graphs.
 
 %The contributions of this papers are 1) development of G2GML, 2) proposal of common property graph model and its serialization, 3) development of a prototype implementation, 4) construction of knowledge graph resources in a common format as Graph Archive.
 
-The main contributions of this papers are 1) language design of G2GML, 2) its prototype implementation. Additionally, we proposes 3) the common property graph model and its serialization, which are essential to make this mapping framework independent from the implementations of database systems.
+The main contributions of this study are as follows: 1) language design of G2GML; 2) its prototype implementation. Furthermore, we propose 3) the common PG model and its serialization, which are essential to ensure this mapping framework is independent from the implementations of database systems.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 \section{Graph to Graph Mapping}
 
 \subsection{Overview}
 
-Here we illustrate the overview of the graph to graph mapping (G2G mapping) framework (Figure~\ref{fig:dataflow}).
+We provide an overview of the graph to graph mapping (G2G mapping) framework (Figure~\ref{fig:dataflow}).
 
-In this framework, users describe mappings from RDF to property graphs in G2GML.
-According to this G2GML description, a G2GML implementation converts input RDF dataset into property graph dataset. Optionally, the new dataset can be also saved in specific formats for loading it into the major graph database implementations.
+In this framework, users describe mappings from the RDF to PG in G2GML.
+According to this G2GML description, G2GML implementation converts the input RDF dataset into the PG dataset. The new dataset can also be optionally saved in specific formats for loading into major graph database implementations.
 
-%G2G is a framework to perform mapping between RDF and property graphs for interoperable use of them. In this framework, users can describe mappings from RDF to property graphs in G2GML.
-%G2GML implementation converts RDF dataset into property graph dataset. Optionally, the new dataset can be also saved in specific formats for loading it into the major graph database implementations.
+The G2GML is a declarative language that consists of pairs of RDF patterns and PG patterns. 
+The intuitive meaning of a G2GML can be represented by a map of RDF subgraphs, which matches the specified patterns to specified components of PGs.
 
-The G2GML is a declarative language which consists of pairs of RDF graph patterns and property graph patterns. 
-An intuitive meaning of a G2GML description is a map from RDF subgraphs that matches the specified patterns to specified components of property graphs.
-
-As an entry point to property graph, we define the Property Graph format, which is based on the Property Graph model.
+%As an entry point to the PG, we define serialization based on the PG model.
+%G2GML implementation converts the RDF dataset into a property graph dataset. The new dataset can also be saved in specific formats for loading into major graph database implementations.
 
 
  
 \begin{figure}
 \center
 \includegraphics[width=1.0\textwidth]{dataflow.png}
-\caption{Overview of the mapping from RDF to property graph}
+\caption{Overview of mapping from RDF to PG}
 \label{fig:dataflow}
 \end{figure}
 
@@ -106,19 +100,19 @@ As an entry point to property graph, we define the Property Graph format, which 
 %%%%%%%%%%%%%%%%%%
 \subsection{G2GML}
 
-G2GML is a language to describes maps from RDF graphs to property graphs. G2GML is a domain specific declarative language where programmers only have to describe patterns of RDF and property graphs (PG). RDF pattern is described using SPARQL pattern, and PG pattern is described using Cypher pattern.
+G2GML is a language applied to describe maps from RDF graphs to PGs. It represents a domain-specific declarative language, where programmers only have to describe patterns of RDF and PG. The RDF pattern is described in terms of the SPARQL pattern, and the PG pattern is described using the Cypher pattern.
 
 \begin{prel}
-An RDF triple $(s, p, o)$ is an element of $(I \cup B) \times I \times (I \cup B \cup L)$ where $I$, $L$ and $B$ are a set of IRIs, a set of literals and a set of blank nodes, which are considered pairwise disjoint. In this paper, an RDF triple is simply called a triple. For a triple $(s, p, o)$, $s$ is called the subject, $p$ the predicate and $o$ the object. An RDF graph is defined as a finite set of triples.
+An RDF triple $(s, p, o)$ is an element of $(I \cup B) \times I \times (I \cup B \cup L)$, where $I$, $L$, and $B$ are a set of IRIs, a set of literals, and a set of blank nodes, which are considered pairwise disjoint. In this study, an RDF triple is simply referred to as a triple. For a triple $(s, p, o)$, $s$ is the subject, $p$ the predicate, and $o$ the object. An RDF graph is defined as a finite set of triples.
 \end{prel}
 
 \par
-A map described by G2GML consists of one or more \textit{node maps} and \textit{edge maps}.
-A \textit{node map} is a function that maps from an RDF graph to a set of \textit{PG nodes}. 
-Similarly, an \textit{edge map} is a function that maps from an RDF graph to a set of \textit{PG edges}.
-The meaning of a G2GML description is a function that maps from an RDF graph to a set of PG nodes and edges that is mapped by all its node and edge maps.
-Here we define the syntax of PG node pattern as follows. 
-Note that \texttt{NEWLINE} is an abstract symbol corresponding to appropriate character to start a new line. 
+A G2GML description consists of one or more \textit{node maps} and \textit{edge maps}.
+A \textit{node map} is a function that maps resources from an RDF graph to a set of \textit{PG nodes}. 
+Similarly, an \textit{edge map} is a function that maps resources from an RDF graph to a set of \textit{PG edges}.
+%A G2GML description is a function that maps resources from an RDF graph to a set of PG nodes and edges that are mapped by all node and edge maps.
+Here, we define the syntax of the PG node pattern as follows. 
+\texttt{NEWLINE} is used an abstract symbol corresponding to the appropriate character to start a new line. 
 
 \begin{defi}[EBNF notation of G2GML]
 \label{defi:G2GML}
@@ -130,15 +124,14 @@ Note that \texttt{NEWLINE} is an abstract symbol corresponding to appropriate ch
 \end{verbatim}
 \end{defi}
 In Definition \ref{defi:G2GML}, \texttt{SPARQL\_PREFIX}
- and \texttt{INDENTED\_RDF\_PATTERN} are almost same as \textit{PrefixDecl} and \textit{GroupGraphPattern} in SPARQL syntax (see EBNF notation of SPARQL grammer~\cite{sparql}).
-The only difference is that \texttt{INDENTED\_RDF\_PATTERN} must have one or more white spaces at the top of each line.
-Symbols \texttt{node\_pat} \texttt{edge\_pat} will be described in the following definition.
+ and \texttt{INDENTED\_RDF\_PATTERN} are almost the same as \textit{PrefixDecl} and \textit{GroupGraphPattern} in SPARQL syntax (see EBNF notation of SPARQL grammar~\cite{sparql}).
+The only difference is that \texttt{INDENTED\_RDF\_PATTERN} must have one or more white spaces on top of each line.
+Symbols \texttt{node\_pat} \texttt{edge\_pat} are described according to the following definition.
 
-An RDF graph pattern in G2GML specifies which resources should be mapped to PG nodes. Resources matching with these pattern yield solution sets of SELECT query in SPARQL, which 
- are mapped to PG nodes by embedding variable bindings to corresponding location according to the preceding PG node pattern.
+An RDF graph pattern in G2GML specifies the resources that should be mapped to PG nodes. Resources matching with these patterns yield solution sets of SELECT query in SPARQL, which are mapped to PG nodes by embedding variable bindings to corresponding locations according to the preceding PG node pattern.
 A complete example of G2GML is shown in Figure \ref{fig:example-g2g}.
 %TODO: consider the position of the example
-A node map is described as a pair of a PG node pattern  and an RDF graph pattern. Here we define the syntax of PG node pattern as follows. Note that \texttt{NODE}, \texttt{LABEL}, \texttt{PROP\_NAME} and \texttt{PROP\_VAL} are all identifiers.
+A node map is described as a pair of a PG node pattern and an RDF graph pattern. Here, we define the syntax of the PG node pattern as follows. Notably, \texttt{NODE}, \texttt{LABEL}, \texttt{PROP\_NAME}, and \texttt{PROP\_VAL} are all identifiers.
 \begin{defi}[EBNF notation of PG node pattern]
 \leavevmode
 \begin{verbatim}
@@ -148,15 +141,15 @@ A node map is described as a pair of a PG node pattern  and an RDF graph pattern
 \end{verbatim}
 \end{defi}
 
-A PG node pattern specifies a node, a label and properties to be generated by the map. The \texttt{NODE} symbol specifies ID of the generated node, which is replaced by the resource retrieved by RDF graph. The \texttt{LABEL} symbol specifies the label of the resultant node. A label also works as the name of the node map which is referred from edge maps.
-Therefore an identifier of a label must be unique in a G2GML description.
+A PG node pattern specifies a node, a label, and properties to be generated by the map. The \texttt{NODE} symbol specifies the ID of the generated node, which is replaced by the resource retrieved by the RDF graph. The \texttt{LABEL} symbol specifies the label of the resultant node. A label also serves as the name of the node map, which is referred from edge maps.
+Therefore, the identifier of each label must be unique in a G2GML description.
 Each node pattern contains zero or more properties as \texttt{prop\_list}.
-A \texttt{property} is a pair of \texttt{PROP\_NAME} and \texttt{PROP\_VAL} that describes properties of nodes.
+A \texttt{property} is a pair of \texttt{PROP\_NAME} and \texttt{PROP\_VAL} that describes the properties of nodes.
 Identifiers \texttt{NODE} and \texttt{PROP\_VAL} must be names of variables in the succeeding RDF graph pattern, while \texttt{LABEL} and \texttt{PROP\_NAME} are regarded as text literals.
  
-A PG edge pattern specifies a pattern of edge, the label, the properties and the source node and the destination node.
-Here we define the syntax of PG edge pattern as follows.
-Note that \texttt{SRC}, \texttt{SRC\_LAB}, \texttt{EDGE}, \texttt{EDGE\_LAB}, \texttt{DST} and \texttt{DST\_LAB} are all identifiers.
+A PG edge pattern specifies the pattern of the edge, label, properties, as well as the source and destination nodes.
+Here, we define the syntax of the PG edge pattern as follows.
+Notably, \texttt{SRC}, \texttt{SRC\_LAB}, \texttt{EDGE}, \texttt{EDGE\_LAB}, \texttt{DST}, and \texttt{DST\_LAB} are all identifiers.
 \begin{defi}[EBNF notation of PG edge pattern]
 \leavevmode
 \begin{verbatim}
@@ -166,44 +159,44 @@ edge_pat ::= "(" SRC  ":" SRC_LAB ") -"
 \end{verbatim}
 \end{defi}
 
- Identifiers of \texttt{SRC} and \texttt{DST} specify which variables in the succeeding RDF graph pattern should be mapped to endpoint nodes of resultant edges.
-A \texttt{SRC\_LAB} and a \texttt{DST\_LAB} work not only as labels of resultant nodes but also work as implicit constraints of the edge map.
+ Identifiers of \texttt{SRC} and \texttt{DST} specify the variables in the succeeding RDF graph pattern that should be mapped to endpoint nodes of resultant edges.
+A \texttt{SRC\_LAB} and a \texttt{DST\_LAB} serve not only as labels of resultant nodes, but also as implicit constraints of the edge map.
 %TODO add ref to example section.
-The resultant source nodes and destination nodes must match patterns in corresponding node maps.
+The resultant source and destination nodes must match patterns in the corresponding node maps.
 For this reason, \texttt{SRC\_LAB} and \texttt{DST\_LAB} must be defined in other node maps.
-\texttt{EDGE}, \texttt{EDGE\_LAB} and \texttt{prop\_list} can be described in the same manner as those counterparts in node maps.
+\texttt{EDGE}, \texttt{EDGE\_LAB}, and \texttt{prop\_list} can be described in the same manner as their counterparts in node maps.
 
-The resultant edges can be either directed or undirected. If we use '\texttt{->}' as delimiter between an edge part and a destination part, the edge will be a directed edge.
+The resultant edges can be either directed or undirected. If we use '\texttt{->}' as delimiter between an edge and a destination part, the edge will be a directed edge.
 
-In node maps and edge maps, a variable bound to \texttt{PROP\_VAL} may have multiple candidates against single node or edge. If multiple candidate exists, they are concatenated into an array in the manner of GROUP\_CONCAT in SPARQL. If \texttt{EDGE} is omitted in an edge map, such candidates are concatenated  within groups of tuples of \texttt{SRC} and \texttt{DST}.
+In node and edge maps, a variable bound to \texttt{PROP\_VAL} may have multiple candidates against a single node or edge. If multiple candidates exist, they are concatenated into an array in the same manner as GROUP\_CONCAT in SPARQL. If \texttt{EDGE} is omitted in an edge map, such candidates are concatenated within groups of tuples of \texttt{SRC} and \texttt{DST}.
 
 
 %%%%%%%%%%%
-\subsection{The Property Graph Model}
-Here we define the property graph model independent of specific graph database implementations. For the purpose of interoperability, we incorporate differences in property graph models, taking into consideration multiple labels or property values for nodes and edges, as well as mixed graphs with both of directed and undirected edges. The property graph model we redefine here requires the following characteristics:
+\subsection{Property Graph Model}
+We define the PG model independent of specific graph database implementations. For the purpose of interoperability, we incorporate differences in PG models, taking into consideration multiple labels or property values for nodes and edges, as well as mixed graphs with both directed and undirected edges. The PG model we redefine here requires the following characteristics:
 
 \begin{itemize}
-    \item A property graph contains nodes and edges.
-    \item Each of the nodes and edges can have zero or more labels.
-    \item Each of the nodes and edges can have properties (key-value pairs).
+    \item A PG contains nodes and edges.
+    \item Each node and edge can have zero or more labels.
+    \item Each node and edge can have properties (key-value pairs).
     \item Each property can have multiple values.
     \item Each edge can be directed or undirected.
 \end{itemize}
-More formally, we define the property graph model as follows.
+Formally, we define the PG model as follows.
 
 \begin{defi}[Property Graph Model]
 \leavevmode \vspace{1mm} \\
-A \emph{Property Graph} is a tuple
+A \emph{property graph} is a tuple
 $PG = \langle N, E_d, E_u, S, V, P, e, l_n, l_e, p_n, p_e\rangle$, where:
 \begin{enumerate}
     \item $N$ is a set of nodes.
     \item $E_d$ is a set of directed edges.
     \item $E_u$ is a set of undirected edges.
-    \item $E$ is a set of edges where $E = E_d \cup E_u$.
+    \item $E$ is a set of edges, where $E = E_d \cup E_u$.
     \item $S$ is a set of strings.
     \item $V$ is a set of values of arbitrary data types.
-    \item $P$ is a set of properties. Each property has the form $p = \langle k,v \rangle$, where $k \in S$ and $v \in 2^V$.
-    \item $e: E \to \langle N \times N \rangle$ is a function which yields the endpoints of each directed or undirected edge (if the edge is directed, the first node is the source and the second node is the destination).
+    \item $P$ is a set of properties. Each property assumes the form $p = \langle k,v \rangle$, where $k \in S$ and $v \in 2^V$.
+    \item $e: E \to \langle N \times N \rangle$ is a function that yields the endpoints of each directed or undirected edge (if the edge is directed, the first node is the source, and the second node is the destination).
     \item $l_n : N \to 2^S$ is a function mapping each node to its multiple labels.
     \item $l_e : E \to 2^S$ is a function mapping each edge to its multiple labels.
     \item $p_n : N \to 2^P$ is a function used to assign nodes to their multiple properties.
@@ -213,15 +206,15 @@ $PG = \langle N, E_d, E_u, S, V, P, e, l_n, l_e, p_n, p_e\rangle$, where:
 
 
 \subsection{Serialization of Property Graphs}
-According to our definition of the property graph model, we propose serialization in flat text and JSON. The flat text format (PG format) is better for human readability and line-oriented processing, while the JSON format (JSON-PG format) is best used for server-client communication.
+According to our definition of the PG model, we propose serialization in flat text and JSON. The flat text format (PG format) performs better in terms of human readability and line-oriented processing, while the JSON format (JSON-PG format) is best used for server-client communication.
 
 The PG format has the following characteristics, and an example is given in Figure~\ref{fig:example-pg}.
 
 \begin{itemize}
     \item Each line describes a node or an edge.
-    \item All elements in each line are separated by space or tab.
+    \item All the elements in each line are separated by spaces or tabs.
     \item In each of the node lines, the first column contains the node ID.
-    \item In each of the edge lines, the first three columns contain the source node ID, the direction, and the destination node ID.
+    \item In each of the edge lines, the first three columns contain the source node ID, direction, and destination node ID.
     \item Each line can contain an arbitrary number of labels.
     \item Each line can contain an arbitrary number of properties (key-value pairs).
 \end{itemize}
@@ -243,16 +236,7 @@ More formally, we describe the PG format in the EBNF notation as follows.
 \end{verbatim}
 \end{defi}
 
-% Next, we describe the JSON-PG format which follows the JSON syntax in addition to the above definition of the property graph model. The JSON-PG format has the following characteristics, and an example of the format is shown in Figure~\ref{fig:example-json}. It is to be noted that, whereas the set of labels or property values are represented as arrays in JSON, those elements are supposed to have no specific order according to the property graph model.
-
-% \begin{itemize}
-%     \item Nodes and edges are listed under \texttt{nodes} and \texttt{edges} elements, respectively.
-%     \item Edge direction is defined with the boolean element \texttt{undirected}. By default it is false (directed).
-%     \item Labels are listed under the \texttt{labels} element.
-%     \item Properties (key-value pairs) are listed under the \texttt{properties} element.
-% \end{itemize}
-
-Furthermore, we have implemented command-line tools to convert between PG format and JSON-PG format which follows the JSON syntax in adition to the above definition, as well as to transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe property graph data being used in existing graph databases (see \url{https://github.com/g2glab/pg}).
+Furthermore, we implemented command-line tools to convert formats between the flat PG and JSON-PG, where the latter follows the JSON syntax in addition to the above definition. We further transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe PG data used in existing graph databases (see \url{https://github.com/g2glab/pg}).
 
 \begin{figure}[!t]
 \begin{scriptsize}
@@ -270,54 +254,16 @@ Furthermore, we have implemented command-line tools to convert between PG format
 \label{fig:example-pg}
 \end{figure}
 
-% \begin{figure}[!t]
-% \begin{scriptsize}
-% \begin{verbatim}
-% {
-%   "nodes":[
-%     {
-%      "id":101,
-%      "labels":["Person"],
-%      "properties":{"name":["Alice"], "age":[15], "country":["United States"]}
-%     },
-%     {
-%      "id":102,
-%      "labels":["Person", "Student"],
-%      "properties":{"name":["Bob"], "country":["Japan", "Germany"]}
-%     }
-%   ],https://ja.overleaf.com/project/5d6e87b11a254100014e487d
-%   "edges":[
-%     {
-%      "from":101,
-%      "to":102,
-%      "undirected":true,
-%      "labels":["sameSchool", "sameClass"],
-%      "properties":{"since":[2012]}
-%     },
-%     {
-%      "from":102,
-%      "to":101,
-%      "labels":["likes"],
-%      "properties":{"since":[2015]}
-%     }
-%   ]
-% }
-% \end{verbatim}
-% \end{scriptsize}
-% \caption{Example of JSON-PG format}
-% \label{fig:example-json}
-% \end{figure}
-
 %%%%%%%%%%%%
 \subsection{Minimal Examples}
-Figure~\ref{fig:example-g2g} shows the small example of G2G mapping from RDF data to PG data. This example shows the following five types of the typical mapping.
+Figure~\ref{fig:example-g2g} shows the minimal example of G2G mapping from RDF to PG data, representing the following five types of typical mapping.
 
 \begin{itemize}
-    \item Resource to node: In the line 2-4, the RDF resources with type \texttt{:Person} are mapped into the PG nodes using their IRIs as node IDs.
-    \item Datatype property to node property: In the line 2-4, the RDF datatype property \texttt{:name} is mapped into the PG node property key \texttt{name}. The literal objects 'Alice' and 'Bob' are mapped into the node property values.
-    \item Object property to edge: In the line 5-6, the RDF object property \texttt{:supervised\_by} is mapped into the PG edge \texttt{supervised\_by}.
-    \item Resource to edge: In the line 7-10, the RDF resource with type \texttt{:Email} is mapped into the PG edge \texttt{emailed}. 
-    \item Datatype property to edge property: In the line 7-10, the RDF datatype property \texttt{:year} and \texttt{:attachment} are mapped into the PG edge property \texttt{year} and \texttt{attachment}. The literal objects \texttt{2017} and \texttt{01.pdf} are mapped into the edge property values.
+    \item Resource to node: In line 2-4, the RDF resources with type \texttt{:Person} are mapped into the PG nodes using their IRIs as node IDs.
+    \item Datatype property to node property: In line 2-4, the RDF datatype property \texttt{:name} is mapped onto the PG node property key \texttt{name}. The literal objects 'Alice' and 'Bob' are mapped onto the node property values.
+    \item Object property to edge: In line 5-6, the RDF object property \texttt{:supervised\_by} is mapped onto the PG edge \texttt{supervised\_by}.
+    \item Resource to edge: In line 7-10, the RDF resource with type \texttt{:Email} is mapped onto the PG edge \texttt{emailed}. 
+    \item Datatype property to edge property: In line 7-10, the RDF datatype property \texttt{:year} and \texttt{:attachment} are mapped onto the PG edge property \texttt{year} and \texttt{attachment}. The literal objects \texttt{2017} and \texttt{01.pdf} are mapped onto the edge property values.
 \end{itemize}
 
 
@@ -388,13 +334,13 @@ PREFIX : <http://example.org/>
 
 %%%%%%%%%%%
 \subsection{Mapping Details}
-The G2G mapping based on G2GML is generally intuitive as it is shown above, however, there are several discussions about the details of mapping.
+The G2G mapping based on G2GML is generally intuitive, as shown above; however, there are several discussions regarding the details of mapping.
 
 \subsubsection{Referencing Node Labels}
-The node labels in edge maps must be defined in node maps  (described in section 2.2) for referencing the conditions. This means that the conditions for defining `Person` are inherited to the definition of `supervised\_by` and `emailed` relationships. Therefore, when any `supervised\_by` relationship exists between the nodes which are not `Person`, this relationship will not be generated. In this way, users can retrieve the property graph datasets which are intuitively consistent (it is also possible not to specify node labels). On the other hand, edge conditions are not inherited to nodes, so the nodes which do not have any `supervised\_by` nor `emailed` relationships are also generated.
+The node labels in edge maps must be defined in node maps (described in Section 2.2) to reference the conditions. This means that the conditions for defining `Person` are imported into the definition of `supervised\_by` and `emailed` relationships. Therefore, the `supervised\_by` relationship will be generated only between the nodes satisfying the `Person` condition. In this manner, users can retrieve the PG datasets that are intuitively consistent (it is also possible to avoid specifying node labels). In contrast, edge conditions are not inherited to nodes, such that the nodes that do not have any `supervised\_by` nor `emailed` relationships are also generated.
 
-\subsubsection{Multi Edges}
-When a pair of RDF resources has multiple relationships, those will be converted not to a single PG edge with multiple properties but to multiple PG edges. The G2GML in Figure~\ref{fig:example-g2g} generates two PG edges for the RDF data in Figure~\ref{fig:example-rdf2} for keeping the information that Alice emailed Bob twice.
+\subsubsection{Multi-Edges}
+When a pair of RDF resources has multiple relationships, those will be converted to multiple PG edges instead of a single PG edge with multiple properties. The G2GML in Figure~\ref{fig:example-g2g} generates two PG edges for the RDF data in Figure~\ref{fig:example-rdf2} to maintain the information that Alice emailed Bob twice.
 
 \begin{figure}[!t]
 \begin{scriptsize}
@@ -414,7 +360,7 @@ When a pair of RDF resources has multiple relationships, those will be converted
    :year     2018 .
 \end{verbatim}
 \end{scriptsize}
-\caption{Example of input RDF data (multi edges)}
+\caption{Example of input RDF data (multi-edges)}
 \label{fig:example-rdf2}
 \end{figure}
 
@@ -428,12 +374,12 @@ When a pair of RDF resources has multiple relationships, those will be converted
 "http://example.org/person1" -> "http://example.org/person2" :emailed year:2018
 \end{verbatim}
 \end{scriptsize}
-\caption{Example of output PG data (multi edges)}
+\caption{Example of output PG data (multi-edges)}
 \label{fig:example-pg2}
 \end{figure}
 
 \subsubsection{List of Property Values}
-Each PG property can have multiple values. When a RDF resource has the same data property multiple times, the values are assumed to be the members of a list. The G2GML in Figure~\ref{fig:example-g2g} generates one PG edge with two properties for the RDF data in Figure~\ref{fig:example-rdf3} keeping the information that Alice emailed Bob once and it had two attachments.
+Each PG property can assume multiple values. In an RDF that includes the same data property multiple times, the values are assumed to be the members of a list. The G2GML in Figure~\ref{fig:example-g2g} generates one PG edge with two properties for the RDF data in Figure~\ref{fig:example-rdf3}, keeping the information that Alice emailed Bob once, and the email contained two attachments.
 
 
 \begin{figure}[!t]
@@ -478,30 +424,24 @@ Each PG property can have multiple values. When a RDF resource has the same data
 
 \section{Use Cases}
  
-We present several use cases to show how to apply G2G mapping framework, where we utilize publicly available RDF datasets through SPARQL endpoints.
+We present several use cases to show how to apply the G2G mapping framework, where we utilize publicly available RDF datasets through SPARQL endpoints.
 
  
 \subsection{Using Wikidata}
  
-Here we present an example of mapping using a disease dataset from Wikidata. Wikidata is a useful source of open data from various domains, and it is available in the form of RDF through the SPARQL interface.
- 
-In Wikidata, each disease is associated with zero or more genes and drugs.
-The subset of Wikidata can be extracted using G2G mapping framework by writing a mapping file in G2GML (see the following list).
-Here, we focus on human genes. So we specified the necessary conditions in G2GML.
-Each entity of ‘Q12136: disease’ can have property ‘P2176: drug used for treatment’, thereby linked to items of ‘Q12140: medication’. Also, each disease can have property ‘P2293: genetic association’, thereby linked to items of ‘Q7186: gene’.
- 
-The numbers of obtained entities are as follows.
- 
-4689 diseases
-4495 human genes
-1285 drugs
- 
-The following figure shows the schematic relationships between those entities.
+Wikidata is a useful source of open data from various domains, and it is available in the form of RDF through the SPARQL interface.
+We present an example of mapping using a disease dataset from Wikidata, 
+where each disease is associated with zero or more genes and drugs.
+Figure~\ref{fig:wikidata_schema.png} illustrates the schematic relationships between those entities. 
+The subset of Wikidata can be extracted using the G2G mapping framework by writing a mapping file in G2GML (see Figure~\ref{fig:g2gml_wikidata}).
+Here, we focus on human genes and specify the necessary conditions in G2GML.
+Each instance of \texttt{Q12136} (disease) can have a property \texttt{P2176} (drug used for treatment), which is thereby linked to items of \texttt{Q12140} (medication). Further, each disease can have property \texttt{P2293} (genetic association), which is thereby linked to items of \texttt{Q7186} (gene).
+The numbers of obtained instances includes 4696 diseases, 4496 human genes, and 1287 drugs. The total numbers of nodes and edges are summarized in Table~\ref{table:numbers}. As a result of G2G mapping, the numbers of nodes and edges are reduced to almost half and one third, respectively.
  
 \begin{figure}
 \center
 \includegraphics[width=0.7\textwidth]{wikidata_schema.png}
-\caption{Schematic relation of Wikidata entities}
+\caption{Schematic relations of Wikidata entities}
 \label{fig:wikidata_schema.png}
 \end{figure}
  
@@ -515,27 +455,27 @@ PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
  
 (g:HumanGene {symbol: s})
-    ?g wdt:P31 wd:Q7187 ;      # instance of gene
-       wdt:P703 wd:Q15978631 ; # found in taxon Homo sapiens
-       wdt:P353 ?s .           # HGNC gene symbol
+    ?g wdt:P31 wd:Q7187 ;      # "instance of" "gene"
+       wdt:P703 wd:Q15978631 ; # "found in taxon" "Homo sapiens"
+       wdt:P353 ?s .           # "HGNC gene symbol"
  
 (d:Disease {name: n})
-    ?d wdt:P31 wd:Q12136 ;     # instance of disease
+    ?d wdt:P31 wd:Q12136 ;     # "instance of" "disease"
        rdfs:label ?l .
     FILTER(lang(?l) = "en")
     BIND(str(?l) AS ?n)
  
 (m:Drug {name: n})
-    ?m wdt:P31 wd:Q12140 ;     # instance of medication
+    ?m wdt:P31 wd:Q12140 ;     # "instance of" "medication"
        rdfs:label ?l .
     FILTER(lang(?l) = "en")
     BIND(str(?l) AS ?n)
  
 (d:Disease)-[:hasAssociatedGene]->(g:HumanGene)
-    ?d wdt:P2293 ?g .          # genetic association
+    ?d wdt:P2293 ?g .          # "genetic association"
  
 (d:Disease)-[:hasDrug]->(m:Drug)
-    ?d wdt:P2176 ?m .          # drug used for treatment
+    ?d wdt:P2176 ?m .          # "drug used for treatment"
  
 \end{verbatim}
 \end{scriptsize}
@@ -553,21 +493,21 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
  
 \subsection{Using DBpedia}
  
-Figure~\ref{fig:conversion} schematically shows an example of the G2G mapping to convert RDF data retrieved from DBpedia into property graph data. 
-When we focus on a relationships where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, such information can be represented in the property graph shown in the right side of the figure.
+Figure~\ref{fig:conversion} schematically illustrates an example of the G2G mapping to convert RDF data retrieved from DBpedia into PG data. 
+Focusing on a relationship where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, this information can be represented in the PG shown in the right side of the figure.
  
 \begin{figure}
 \center
 \includegraphics[width=1.0\textwidth]{example.jpg}
-\caption{Schematic example of the graph to graph mapping}
+\caption{Schematic example of graph to graph mapping}
 \label{fig:conversion}
 \end{figure}
  
-The mapping rule for the above example is specified in G2GML shown in Figure~\ref{fig:g2gml}. Following the prefix declaration for URIs used to write mappings, each mapping pattern is defined by a combination of a property graph pattern in an unindented line and an RDF graph pattern in indented lines. The property graph pattern is specified in a syntax like Cypher (the query language of Neo4j), whereas the RDF graph pattern is specified using a SPARQL code pattern. 
-Variables in each mapping pattern are associated by their names across the different data models. 
-In G2G mapping, execution of the edge mappings is dependent on the node mappings, which means that edges are generated iff both nodes' patterns and edges' patterns are matched with RDF graphs. 
+The mapping rule for the above example is specified in the G2GML description shown in Figure~\ref{fig:g2gml}. Following the prefix declaration for URIs used to write mappings, each mapping pattern is defined by a combination of a PG pattern in an unindented line and an RDF graph pattern in indented lines. The PG pattern is specified in a syntax derived from Cypher (the query language of Neo4j), whereas the RDF graph pattern is specified using a SPARQL code pattern. 
+Variables in each mapping pattern are associated by their names across different data models. 
+In G2G mapping, the execution of the edge mappings is dependent on the node mappings, which means that edges are generated if and only if both nodes' and edges' patterns are matched with RDF graphs. 
 The example contains node mapping for \texttt{Musician} entities and edge mapping for \texttt{same\_group} relationships.
-In each of the specified property graph patterns, \texttt{\{m, n, h\}} and \texttt{\{m1, m2, n, s\}} are used as variables to reconstruct resources and literals extracted from RDF graphs. 
+In each specified PG pattern, \texttt{\{m, n, h\}} and \texttt{\{m1, m2, n, s\}} are used as variables to reconstruct resources and literals extracted from RDF graphs. 
 %In this example, RDF literals are mapped to property values.
 %As a result, the specified RDF resources are reconstructed as nodes and edges in property graphs, while literals are mapped to property values.
  
@@ -584,13 +524,13 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
  
 # Node mapping
 (m:Musician {name:n, hometown:h})                            # PG Pattern
-    ?m rdf:type foaf:Person , dbo:MusicalArtist .            # RDF Pattern
-    ?m rdfs:label ?n . FILTER(lang(?n) = "en") .
+    ?m rdf:type foaf:Person , dbo:MusicalArtist ;            # RDF Pattern
+       rdfs:label ?n . FILTER(lang(?n) = "en") .
     OPTIONAL { ?m dbo:hometown/rdfs:label ?h . FILTER(lang(?h) = "en") }
  
 # Edge mapping
 (m1:Musician)-[:sameGroup {name:n, since:s}]-(m2:Musician)  # PG Pattern
-    ?g rdf:type schema:MusicGroup ;                          # RDF Pattern
+    ?g rdf:type schema:MusicGroup ;                         # RDF Pattern
        dbo:bandMember ?m1 , ?m2 . FILTER(?m1 != ?m2)
     OPTIONAL { ?g rdfs:label ?n . FILTER(lang(?n) = "en")}
     OPTIONAL { ?g dbo:activeYearsStartYear ?s }
@@ -630,7 +570,7 @@ SELECT DISTINCT m1.name, m2.name WHERE (m1)-[:same_group]-(m2)
 \label{fig:sparql}
 \end{figure}
  
-Figure~\ref{fig:sparql} shows the SPARQL query to retrieve the pairs of musicians who are in the same group. After the G2G mapping, we can load the generated property graph data into graph databases, such as Oracle Database, and the query can be written in PGQL~\cite{pgql} (the graph query language of Oracle Database).
+Figure~\ref{fig:sparql} shows the SPARQL query to retrieve the pairs of musicians that are in the same group. After the G2G mapping, we can load the generated property graph data into graph databases, such as Oracle Database, and the query can be written in PGQL~\cite{pgql} (the graph query language of Oracle Database).
 
 \begin{table}[h]
     \centering
@@ -638,22 +578,22 @@ Figure~\ref{fig:sparql} shows the SPARQL query to retrieve the pairs of musician
         \hline
         & RDF nodes & RDF edges & PG nodes & PG edges \\
         \hline
-        Wikidata disease & 20,692 & 36,826 & 10,488 & 11,770 \\
-        DBpedia musician & 24,660 &  & 12,329 & 57,351 \\
+        Wikidata disease & 20,692 & 36,826 & 10,477 & 11,770 \\
+        DBpedia musician & 23,846 & 32,808 & 7,069 & 10,755 \\
         \hline
     \end{tabular}
-    \caption{Number of nodes and edges}
-    \label{tab:my_label}
+    \caption{Number of nodes and edges in use cases}
+    \label{table:numbers}
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Availability}
-The prototype implementation is written in JavaScript, and can be executed using Node.js in command line. It has endpoint mode and local file mode. Local file mode uses Apache Jena ARQ to execute SPARQL queries internally, while endpoint mode accesses SPARQL endpoints via the Internet. An example of the usage in endpoint mode is as follows:
+The prototype implementation is written in JavaScript and can be executed using Node.js in the command line. It has an endpoint mode and a local file mode. The local file mode uses Apache Jena ARQ to execute SPARQL queries internally, while the endpoint mode accesses SPARQL endpoints via the Internet. An example of the usage in the endpoint mode is as follows:
 
 \texttt{\$ g2g musician.g2g http://dbpedia.org/sparql}
 
-\noindent where the first argument is a G2GML mapping file and the second argument is the target SPARQL endpoint which provides the source RDF dataset. %from which the RDF dataset is extracted.
+\noindent where the first argument is a G2GML mapping file, and the second argument is the target SPARQL endpoint, which provides the source RDF dataset. %from which the RDF dataset is extracted.
 
 Furthermore, its Docker image (\url{https://hub.docker.com/r/g2glab/g2g}) and a demonstration site of G2G mapping framework (\url{http://g2g.fun}) are also available (Figure~\ref{fig:sandbox}).
 
@@ -673,51 +613,46 @@ Furthermore, its Docker image (\url{https://hub.docker.com/r/g2glab/g2g}) and a 
 
 \section{Related Work}
 
-\subsection{PG Model}
-Recently, the graph data have been attracting increasing attention, leading to plethora of database implementations. 
-%So far, there have been implementations of graph databases on the basis of various data models and query languages. 
-%So far, there are differences in data models and query languages based on the implementations of graph databases.
-So far, there have been different data models and query languages for these graph database implementations.
-Thus, there have been community-based activities for standardizing graph query language for interoperable use of property graph databases~\cite{angles3}. Similarly, standardization of the property graph model of various database implementations will enhance the interoperable use of graph data. In fact, there is a need for graph standardization in the community and graph data standardization was recently discussed in a W3C workshop~\cite{w3c}; there were similar proposals for property graph model and serialization~\cite{tomaszuk} including ours and it is noteworthy that the two independent approaches have converged to the similar solution. 
-In particular, our serialization has implementation for some of the major database engines and also has a potential to cover further various implementations. %However, it requires developing a converter for each format. 
-%This work provides a basis of an interoperable platform for creating, exchanging, and utilizing property graph data.
-%Specifically, our model and serialization are independent of specific implementations and provides a basis 
-%Specifically, it provides the basis for mapping of our G2GML mapping. 
-The serialization formats independent of certain database implementations will increase the interoperability of graph databases and will make it easier for users to import accumulated graph data.
+\subsection{Property Graph Model and Serialization}
+Recently, graph data have attracted increasing attention, leading to a plethora of database implementations. 
+Thus far, different data models and query languages have been available for these graph database implementations.
+Consequently, there have been community-based activities for standardizing the graph query language for interoperable use of PG databases~\cite{angles3}. Similarly, the standardization of the PG model for various database implementations enhances the interoperable use of graph data. There is indeed a demand for graph standardization in the community, which was recently discussed in a W3C workshop~\cite{w3c}. Another proposal for the PG model and serialization~\cite{tomaszuk} that was similar to ours was presented in the workshop, and it is noteworthy that the two independent studies converged to a similar solution. They seem to be interchangeable; however, this remains to be tested. Future studies should address collaboration and standardization of the data model.
+In particular, our serialization has implementation for some of the major database engines and also has a potential to further cover various database engines. 
+The serialization formats that are independent of certain database implementations will increase the interoperability of graph databases and make it easier for users to import accumulated graph data.
 %In G2G mapping, PG format works as a gateway from RDF to property graphs.
 
 \subsection{Graph to Graph Mapping}
-As a preceding work for converting existing data into graph data, there was an effort to convert relational to graph databases~\cite{virgilio1}. 
-However, given that RDF has now prevailed as a standardized data model in scientific communities, considering the mapping on the basis of the RDF model is crucial. There have been discussions about the interoperability of RDF and property graphs~\cite{hartig,angles4,das,thakkar} and efforts were made to develop methods to convert RDF into property graphs~\cite{tomaszuk1,virgilio}. However, considering the flexibility of what kind of information can be expressed by each edge in property graphs, a novel method for controlling the mapping is necessary.
-To the best of our knowledge, this is the first attempt to develop a framework for controlled mapping between RDF and property graphs. 
-Notably, the G2GML we have designed is a declarative mapping language. 
-As a merit of the declarative description, we can concentrate on the core logic of mappings. In the sense that the mapping process generates new graph data on the basis of existing graph data, it has close relation to the semantic inference. Similar concept can be found in SPARQL CONSTRUCT queries. While the SPARQL CONSTRUCT clause defines mapping on the same data model, G2GML defines mapping between different data models. 
+A preceding study on converting existing data into graph data included an effort to convert relational databases into graph databases~\cite{virgilio1}. 
+However, given that RDF has prevailed as a standardized data model in scientific communities, considering mapping based on the RDF model is crucial. The interoperability of RDF and PG~\cite{hartig,angles4,das,thakkar} has been discussed, and efforts were made to develop methods to convert RDF into PG~\cite{tomaszuk1,virgilio}. However, considering the flexibility regarding the type of information that can be expressed by each edge in property graphs, a novel method for controlling the mapping is necessary.
+To the best of our knowledge, this study presents the first attempt to develop a framework for controlled mapping between RDF and PG. 
+Notably, the designed G2GML is a declarative mapping language. 
+As a merit of the declarative description, we can concentrate on the core logic of mappings. In the sense that the mapping process generates new graph data on the basis of existing graph data, it has a close relation to the semantic inference. A similar concept is found in the SPARQL CONSTRUCT queries. While the SPARQL CONSTRUCT clause defines mapping on the same data model, G2GML defines mapping between different data models. 
 %Currently, it is limited to the mapping from RDF to property graphs, it can be extended to the mapping from property graph to RDF. However, if mapping includes the SPARQL pattern that are not declarative, it is not applicable for generating RDF triples.
-Thus, G2GML can be considered as a specific extension of the SPARQL CONSTRUCT clause for generation or inference of property graph data.
+Thus, G2GML is considered as a specific extension of the SPARQL CONSTRUCT clause for generation or inference of PG data.
 %Future works include further analysis of the converted graph data on the database engines adopting the property graph model.
 
-A previous work compared performance of Blazegraph and Neo4j. They concluded that RDF has advantage in terms of performance and interoperability.
+A previous study compared the performance of Blazegraph and Neo4j. They concluded that RDF has an advantage in terms of performance and interoperability.
 
 
 \subsubsection{Direct Mapping}
 
-Other mapping frameworks such as Neosemantics (a Neo4j plugins) propose the method to convert RDF datasets without mapping definitions (for convenience, we call such methods as direct mapping). However, the following capabilities are essential in practical usage.
+Other mapping frameworks, such as Neosemantics (a Neo4j plugins), propose a method to convert RDF datasets without mapping definitions (for convenience, we call such methods direct mapping). However, the following capabilities are essential in practical usage.
 
-1. Filtering data - RDF is designed for the web of data. When the source RDF dataset is retrieved from the public web space, it is inefficient (or even unrealistic) to convert the whole connected dataset. In G2GML, users specify the resources they need, so the SPARQL endpoints can return the filtered dataset. (This design is described in the section 2.2.)
+1. Filtering data - RDF is designed for the web of data. When the source RDF dataset is retrieved from the public web space, it is inefficient (or even unrealistic) to convert the whole connected dataset. In G2GML, users specify the resources they need, such that the SPARQL endpoints can return the filtered dataset. (This design is described in Section 2.2.)
 
-2. Mapping details - There is no common ruleset to uniquely map RDF terms to PG elements (labels, key-value pairs of properties) and to name the new PG elements. Also, the conversion rules of multi-edges and list of property values (discussed in the section 2.6) are not always obvious for users. Therefore, the definition method of the mapping details is necessary for creating precise data in actual usage.
+2. Mapping details - There is no common ruleset to uniquely map RDF terms to PG elements (labels, key-value pairs of properties) and to name new PG elements. Further, the conversion rules of multi-edges and list of property values (discussed in Section 2.6) are not always obvious to users. Therefore, the defining method of the mapping details is necessary to create precise data in actual usage.
 
-3. Schema definition - We expect that the mapping is often used for developing specific applications on the property graph datasets. In such development, the schema of the dataset should be known, while the original RDF data source could contains more information which are not covered by the schema. G2GML helps developers understand the data schema in its intuitive definition (separately for nodes and edges, and their referencing - discussed in the section 2.6), while direct mapping has potential to generate property graphs without defining schema.
+3. Schema definition - We assume that mapping is often used for developing specific applications on top of PG datasets. In this development, the schema of the dataset should be known, while the original RDF data source could contain more information that is not covered by the schema. G2GML helps developers understand the data schema in its intuitive definition (separately for nodes and edges, and their referencing - discussed in Section 2.6), while direct mapping has the potential to generate PGs without defining a schema.
 
-We can find a similar discussion in the conversion from relational model to RDF, and in this case, there are two W3C standards, Direct Mapping~\cite{dm} and R2RML~\cite{r2rml}.
+We find a similar discussion in the conversion from the relational model to RDF, where are two W3C standards, i.e., Direct Mapping~\cite{dm} and R2RML~\cite{r2rml}.
 
 \section{Conclusion}
-Here we redefined the property graph model independent of specific graph database implementations and also proposed serialization formats based on the data model.
-We further designed G2GML for mapping RDF graphs to property graphs and implemented a converter on the basis of G2GML.
-Our data model and mapping framework will increase the interoperability of existing graph databases and make it easier for users to create, exchange, and utilize graph data.
+We redefined the PG model independent of specific graph database implementations and proposed serialization formats based on the data model.
+We further designed the G2GML for mapping RDF graphs to PGs and developed a prototype implementation of G2GML, which is publicly available.
+Our data model and mapping framework increase the interoperability of existing graph databases and make it easier for users to create, exchange, and utilize graph data.
 
 \section*{Acknowledgements}
-Part of the work was conducted through the BioHackathon meetings (\url{http://www.biohackathon.org}). We thank Yuka Tsujii for helping creating figures. We thank Ramona Roess for careful review of the manuscript and useful comments.
+Part of the work was conducted in BioHackathon meetings (\url{http://www.biohackathon.org}). We thank Yuka Tsujii for helping create the figures. We thank Ramona Roess for careful review of the manuscript and useful comments.
 
 %
 % ---- Bibliography ----
@@ -821,3 +756,4 @@ R2RML: RDB to RDF Mapping Language, W3C Recommendation 27 September 2012 \url{ht
 % Oct 2017
 \end{thebibliography}
 \end{document}
+
