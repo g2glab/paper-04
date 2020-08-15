@@ -55,7 +55,7 @@ How can we maximize the value of accumulated RDF data? Whereas the RDF data can 
 
 Increasing amounts of scientific and social data are being published in the form of the Resource Description Framework (RDF)~\cite{rdf}, which presently constitutes a large open data cloud. DBpedia~\cite{dbpedia} and Wikidata~\cite{wikidata} are well-known examples of such RDF datasets. SPARQL~\cite{sparql} is a protocol and query language that serves as a standardized interface for RDF data. This standardized data model and interface enables the construction of integrated graph data. However, the lack of an interface for graph-based analysis and performant traversal limits use cases of the graph data.
 
-Recently, the property graph (PG) model~\cite{angles1,angles2} has been increasingly attracting attention in the context of graph analysis. Various graph database engines, including Neo4j~\cite{neo4j}, Oracle Database~\cite{oracle}, and Amazon Neptune~\cite{neptune} adopt this model. These graph database engines support algorithms for traversing or analyzing graphs. However, few datasets are published in the PG model and the lack of an ecosystem for exchanging data in the PG model limits the application of these powerful engines.
+Recently, the property graph (PG) model~\cite{angles1,angles2} has been increasingly attracting attention in the context of graph analysis~\cite{agri}. Various graph database engines, including Neo4j~\cite{neo4j}, Oracle Database~\cite{oracle}, and Amazon Neptune~\cite{neptune} adopt this model. These graph database engines support algorithms for traversing or analyzing graphs. However, few datasets are published in the PG model and the lack of an ecosystem for exchanging data in the PG model limits the application of these powerful engines.
 
 In the light of this situation, developing a method to transform RDF into PG would be highly valuable. One of the practical issues faced by this challenge is the lack of a standardized PG model.
 Another issue is that the transformation between RDF and PG is not straightforward due to the differences in their models. 
@@ -193,7 +193,7 @@ $PG = \langle N, E_d, E_u, e, l_n, l_e, p_n, p_e\rangle$, where:
 \subsection{Serialization of Property Graphs}
 According to our definition of the PG model, we propose serialization in flat text and JSON. The flat text format (PG format) performs better in terms of human readability and line-oriented processing, while the JSON format (JSON-PG format) is best used for server--client communication.
 
-The PG format has the following characteristics. An example is given in Figure~\ref{fig:example-pg}.
+The PG format has the following characteristics. An example is given in Figure~\ref{fig:example-pg}, which is visualized in Figure~\ref{fig:pg_example5}.
 
 \begin{itemize}
     \item Each line describes a node or an edge.
@@ -215,11 +215,12 @@ More formally, we describe the PG format in the EBNF notation as follows.
  labels     ::= label*
  properties ::= property*
  label      ::= ":" STRING
- property   ::= STRING ":" value
- value      ::= STRING | NUMBER
+ property   ::= STRING ":" VALUE
  direction  ::= "--" | "->"
 \end{verbatim}
 \end{defi}
+
+According to this definition, each property value of PGs is a set of items of any datatype. Meanwhile, our G2G mapping prototype implementation currently supports the main three datatypes (integer, double, and string) as property value, and those types are inferred from the serialized values.
 
 Furthermore, we implemented command-line tools to convert formats between the flat PG and JSON-PG, where the latter follows the JSON syntax in addition to the above definition. We further transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe PG data used in existing graph databases (see \url{https://github.com/g2glab/pg}).
 
@@ -313,7 +314,7 @@ PREFIX : <http://example.org/>
 \begin{figure}
 \center
 \includegraphics[width=0.5\textwidth]{pg_example5.png}
-\caption{Example of output PG data}
+\caption{Visualization of Figure 5}
 \label{fig:pg_example5}
 \end{figure}
 
@@ -575,6 +576,7 @@ Furthermore, a Docker image (\url{https://hub.docker.com/r/g2glab/g2g}) and a de
 \label{fig:sandbox}
 \end{figure}
 
+For the future adoption of this framework, we expect two scenarios: The use of the standalone G2G mapping tools, such as our implementation, for generating PG datasets from RDF resources. Also, the adoption of the framework within the database management systems which support both RDF and PG datasets.
 
 \section{Related Work}
 
@@ -710,6 +712,9 @@ R2RML: RDB to RDF Mapping Language, W3C Recommendation 27 September 2012 \url{ht
 
 \bibitem{openCypher}
 openCypher, \url{https://www.opencypher.org/}
+
+\bibitem{agri}
+Abad-Navarro, F., Bernabé-Diaz, J. A., García-Castro, A., & Fernandez-Breis, J. T. (2020). Semantic Publication of Agricultural Scientific Literature Using Property Graphs. Applied Sciences, 10(3), 861.
 
 % \bibitem{ref_article1}
 % Author, F.: Article title. Journal \textbf{2}(5), 99--110 (2016)
