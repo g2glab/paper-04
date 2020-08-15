@@ -220,7 +220,7 @@ More formally, we describe the PG format in the EBNF notation as follows.
 \end{verbatim}
 \end{defi}
 
-According to this definition, each property value of PGs is a set of items of any datatype. Meanwhile, our G2G mapping prototype implementation currently supports the main three datatypes (integer, double, and string) as property value, and those types are inferred from the serialized values.
+According to this definition, each property value of PGs is a set of items of any datatype. Meanwhile, our G2G mapping prototype implementation currently supports the main three datatypes (integer, double, and string) as property value, and those types are inferred from the format of serialized values.
 
 Furthermore, we implemented command-line tools to convert formats between the flat PG and JSON-PG, where the latter follows the JSON syntax in addition to the above definition. We further transform them into formats for well-known graph databases such as Neo4j, Oracle Database, and Amazon Neptune. The practical use cases of our tools demonstrate that the proposed data model and formats have the capability to describe PG data used in existing graph databases (see \url{https://github.com/g2glab/pg}).
 
@@ -228,11 +228,11 @@ Furthermore, we implemented command-line tools to convert formats between the fl
 \begin{scriptsize}
 \begin{verbatim}
 # NODES
-101  :Person  name:Alice  age:15  country:"United States"
-102  :Person  :Student  name:Bob  country:Japan  country:Germany
+101  :person  name:Alice  age:15  country:"United States"
+102  :person  :student  name:Bob  country:Japan  country:Germany
 
 # EDGES
-101 -- 102  :sameSchool  :sameClass  since:2012
+101 -- 102  :same_school  :same_class  since:2012
 102 -> 101  :likes  since:2015
 \end{verbatim}
 \end{scriptsize}
@@ -279,10 +279,10 @@ Figure~\ref{fig:example-g2g} shows the minimal example of G2G mapping from RDF t
 \begin{scriptsize}
 \begin{verbatim}
 PREFIX : <http://example.org/>
-(p:Person {name:n})
+(p:person {name:n})
     ?p a :Person .
     ?p :name ?n .
-(p1:Person)-[:supervised_by]->(p2:Person)
+(p1:person)-[:supervised_by]->(p2:person)
     ?p1 :supervised_by ?p2 .
 (p1:person)-[:emailed {year:y, attachment:a}]->(p2:person)
     ?f a :Email
@@ -323,7 +323,7 @@ PREFIX : <http://example.org/>
 The G2G mapping based on G2GML is designed to be intuitive in general as shown above; however, there are several discussions regarding the details of mapping.
 
 \subsubsection{Referencing Node Labels}
-The node labels in edge maps must be defined in node maps (described in Section 2.2) to reference the conditions. This means that the conditions for defining \texttt{Person} are imported into the definition of \texttt{supervised\_by} and \texttt{emailed} relationships. Therefore, the \texttt{supervised\_by} relationship will be generated only between the nodes satisfying the \texttt{Person} condition. In this manner, users can retrieve the PG datasets that are intuitively consistent (it is also possible to avoid specifying node labels). In contrast, edge conditions are not inherited to nodes, such that the nodes are retrieved without all relationships, \texttt{supervised\_by} and \texttt{emailed}. Although the nodes with no relationship also satisfy the conditions, the prototype implementation does not retrieve such orphan nodes by default from a practical perspective.
+The node labels in edge maps must be defined in node maps (described in Section 2.2) to reference the conditions. This means that the conditions for defining \texttt{person} are imported into the definition of \texttt{supervised\_by} and \texttt{emailed} relationships. Therefore, the \texttt{supervised\_by} relationship will be generated only between the nodes satisfying the \texttt{person} condition. In this manner, users can retrieve the PG datasets that are intuitively consistent (it is also possible to avoid specifying node labels). In contrast, edge conditions are not inherited to nodes, such that the nodes are retrieved without all relationships, \texttt{supervised\_by} and \texttt{emailed}. Although the nodes with no relationship also satisfy the conditions, the prototype implementation does not retrieve such orphan nodes by default from a practical perspective.
 
 \subsubsection{Multi-Edges}
 When a pair of RDF resources has multiple relationships, those will be converted to multiple PG edges instead of a single PG edge with multiple properties. The G2GML in Figure~\ref{fig:example-g2g} generates two PG edges for the RDF data in Figure~\ref{fig:example-rdf2} to maintain the information that Alice emailed Bob twice.
@@ -354,8 +354,8 @@ When a pair of RDF resources has multiple relationships, those will be converted
 \begin{figure}[!t]
 \begin{scriptsize}
 \begin{verbatim}
-"http://example.org/person1" :Person name:Alice
-"http://example.org/person2" :Person name:Bob
+"http://example.org/person1" :person name:Alice
+"http://example.org/person2" :person name:Bob
 "http://example.org/person1" -> "http://example.org/person2" :emailed year:2017
 "http://example.org/person1" -> "http://example.org/person2" :emailed year:2018
 \end{verbatim}
@@ -395,8 +395,8 @@ Each PG property can assume multiple values. In an RDF that includes the same da
 \begin{scriptsize}
 \begin{verbatim}
 
-"http://example.org/person1" :Person name:Alice
-"http://example.org/person2" :Person name:Bob
+"http://example.org/person1" :person name:Alice
+"http://example.org/person2" :person name:Bob
 "http://example.org/person1" -> "http://example.org/person2" :emailed year:2017 attachment:"01.pdf" attachment:"02.pdf"
 
 \end{verbatim}
@@ -437,27 +437,27 @@ The resultant PG includes 4696 diseases, 4496 human genes, and 1287 drugs. The t
 PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
  
-(g:HumanGene {symbol: s})
+(g:human_gene {symbol: s})
     ?g wdt:P31 wd:Q7187 ;      # "instance of" "gene"
        wdt:P703 wd:Q15978631 ; # "found in taxon" "Homo sapiens"
        wdt:P353 ?s .           # "HGNC gene symbol"
  
-(d:Disease {name: n})
+(d:disease {name: n})
     ?d wdt:P31 wd:Q12136 ;     # "instance of" "disease"
        rdfs:label ?l .
     FILTER(lang(?l) = "en")
     BIND(str(?l) AS ?n)
  
-(m:Drug {name: n})
+(m:drug {name: n})
     ?m wdt:P31 wd:Q12140 ;     # "instance of" "medication"
        rdfs:label ?l .
     FILTER(lang(?l) = "en")
     BIND(str(?l) AS ?n)
  
-(d:Disease)-[:hasAssociatedGene]->(g:HumanGene)
+(d:disease)-[:has_associated_gene]->(g:human_gene)
     ?d wdt:P2293 ?g .          # "genetic association"
  
-(d:Disease)-[:hasDrug]->(m:Drug)
+(d:disease)-[:has_drug]->(m:drug)
     ?d wdt:P2176 ?m .          # "drug used for treatment"
  
 \end{verbatim}
@@ -469,7 +469,7 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 \subsection{Using DBpedia}
  
 Figure~\ref{fig:conversion} schematically illustrates an example of the G2G mapping to convert RDF data retrieved from DBpedia into PG data. 
-Focusing on a relationship where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, this information can be represented in the PG shown on the right side of the figure. The relationships are originally presented as independent resources \texttt{?g}. In the mapping, we map \texttt{?g}, \texttt{?n}, and \texttt{?s} onto a PG edge labeled 'sameGroup' with attributes. Such compaction by mapping is useful in many use cases, for example, when users are just interested in relationships between musicians.
+Focusing on a relationship where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, this information can be represented in the PG shown on the right side of the figure. The relationships are originally presented as independent resources \texttt{?g}. In the mapping, we map \texttt{?g}, \texttt{?n}, and \texttt{?s} onto a PG edge labeled 'same_group' with attributes. Such compaction by mapping is useful in many use cases, for example, when users are just interested in relationships between musicians.
  
 \begin{figure}
 \center
@@ -478,7 +478,7 @@ Focusing on a relationship where two musicians (\texttt{?m1} and \texttt{?m2}) b
 \label{fig:conversion}
 \end{figure}
  
-The mapping rules for this example are specified in the G2GML description shown in Figure~\ref{fig:g2gml}. The G2GML description contains node mapping for \texttt{Musician} entities and edge mapping for \texttt{same\_group} relationships.
+The mapping rules for this example are specified in the G2GML description shown in Figure~\ref{fig:g2gml}. The G2GML description contains node mapping for \texttt{musician} entities and edge mapping for \texttt{same\_group} relationships.
 In each specified PG pattern, \texttt{\{m, n, h\}} and \texttt{\{m1, m2, n, s\}} are used as variables to reconstruct resources and literals extracted from RDF graphs. 
  
 
@@ -493,13 +493,13 @@ PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
  
 # Node mapping
-(m:Musician {name:n, hometown:h})                            # PG Pattern
+(m:musician {name:n, hometown:h})                            # PG Pattern
     ?m rdf:type foaf:Person , dbo:MusicalArtist ;            # RDF Pattern
        rdfs:label ?n . FILTER(lang(?n) = "en") .
     OPTIONAL { ?m dbo:hometown/rdfs:label ?h . FILTER(lang(?h) = "en") }
  
 # Edge mapping
-(m1:Musician)-[:sameGroup {name:n, since:s}]-(m2:Musician)   # PG Pattern
+(m1:musician)-[:same_group {name:n, since:s}]-(m2:musician)   # PG Pattern
     ?g rdf:type schema:MusicGroup ;                          # RDF Pattern
        dbo:bandMember ?m1 , ?m2 . FILTER(?m1 != ?m2)
     OPTIONAL { ?g rdfs:label ?n . FILTER(lang(?n) = "en")}
