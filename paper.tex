@@ -25,9 +25,11 @@
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
-\author{Hirokazu Chiba\inst{1} \and Ryota Yamanaka\inst{2} \and Shota Matsumoto\inst{3}}
+\author{Hirokazu Chiba\inst{1}\orcidID{0000-0003-4062-8903} \and Ryota Yamanaka\inst{2} \and Shota Matsumoto\inst{3}}
 %
 \authorrunning{H. Chiba {\itshape et al.}}
+
+\setlength\abovecaptionskip{-0.5ex}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
@@ -45,7 +47,7 @@ Lifematics Inc., Tokyo 101-0041, Japan\\
 \maketitle
 %
 \begin{abstract}
-How can we maximize the value of accumulated RDF data? Whereas the RDF data can be queried using the SPARQL language, even the SPARQL-based operation has a limitation in implementing traversal or analytical algorithms. Recently, a variety of database implementations dedicated to analyses on the property graph (PG) model have emerged. Importing RDF datasets into these graph analysis engines will enable access to the accumulated datasets through various application interfaces. However, the RDF model and the PG model are not interoperable. Here, we developed a framework based on the Graph to Graph Mapping Language (G2GML) for mapping RDF graphs to PGs to make the most of accumulated RDF data. Using this framework, accumulated graph data described in the RDF model can be converted to the PG model, which can then be loaded to graph database engines for further analysis. For supporting different graph database implementations, we redefined the PG model and proposed its exchangeable serialization formats. We demonstrate several use cases, where publicly available RDF data are extracted and converted to PGs. This study bridges RDF and PGs and contributes to interoperable management of knowledge graphs, thereby expanding the use cases of accumulated RDF data.
+How can we maximize the value of accumulated RDF data? Whereas the RDF data can be queried using the SPARQL language, even the SPARQL-based operation has a limitation in implementing traversal or analytical algorithms. Recently, a variety of database implementations dedicated to analyses on the property graph (PG) model have emerged. Importing RDF datasets into these graph analysis engines provides access to the accumulated datasets through various application interfaces. However, the RDF model and the PG model are not interoperable. Here, we developed a framework based on the Graph to Graph Mapping Language (G2GML) for mapping RDF graphs to PGs to make the most of accumulated RDF data. Using this framework, accumulated graph data described in the RDF model can be converted to the PG model, which can then be loaded to graph database engines for further analysis. For supporting different graph database implementations, we redefined the PG model and proposed its exchangeable serialization formats. We demonstrate several use cases, where publicly available RDF data are extracted and converted to PGs. This study bridges RDF and PGs and contributes to interoperable management of knowledge graphs, thereby expanding the use cases of accumulated RDF data.
 
 
 \keywords{RDF \and Property Graph \and Graph Database}
@@ -79,7 +81,7 @@ In this framework, users describe mappings from RDF to PG in G2GML.
 According to this G2GML description, the input RDF dataset is converted into a PG dataset. The new dataset can also be optionally saved in specific formats for loading into major graph database implementations.
 
 G2GML is a declarative language comprising pairs of RDF patterns and PG patterns. 
-The core concept of a G2GML description can be represented by a map from RDF subgraphs, which matches specified SPARQL patterns, to PG components.
+The core concept of a G2GML description can be represented by a map from RDF subgraphs, which match specified SPARQL patterns, to PG components.
 
  
 \begin{figure}
@@ -247,10 +249,10 @@ Figure~\ref{fig:example-g2g} shows the minimal example of G2G mapping from RDF t
 
 \begin{itemize}
     \item Resource to node: In lines 2--4, the RDF resources with type \texttt{:Person} are mapped into the PG nodes using their IRIs as node IDs.
-    \item Datatype property to node property: In lines 2--4, the RDF datatype property \texttt{:name} is mapped onto the PG node property key \texttt{name}. The literal objects 'Alice' and 'Bob' are mapped onto the node property values.
+    \item Datatype property to node property: In lines 2--4, the RDF datatype property \texttt{:name} is mapped onto the PG node property key \texttt{name}. The literal objects \texttt{'Alice'} and \texttt{'Bob'} are mapped onto the node property values.
     \item Object property to edge: In lines 5--6, the RDF object property \texttt{:supervised\_by} is mapped onto the PG edge \texttt{supervised\_by}.
-    \item Resource to edge: In lines 7--10, the RDF resource with type \texttt{:Email} is mapped onto the PG edge \texttt{emailed}. 
-    \item Datatype property to edge property: In lines 7--10, the RDF datatype property \texttt{:year} and \texttt{:attachment} are mapped onto the PG edge property \texttt{year} and \texttt{attachment}. The literal objects \texttt{2017} and \texttt{01.pdf} are mapped onto the edge property values.
+    \item Resource to edge: In lines 7--12, the RDF resource with type \texttt{:Email} is mapped onto the PG edge \texttt{emailed}. 
+    \item Datatype property to edge property: In lines 7--12, the RDF datatype property \texttt{:year} and \texttt{:attachment} are mapped onto the PG edge property \texttt{year} and \texttt{attachment}. The literal objects \texttt{2017} and \texttt{'01.pdf'} are mapped onto the edge property values.
 \end{itemize}
 
 
@@ -266,8 +268,8 @@ Figure~\ref{fig:example-g2g} shows the minimal example of G2G mapping from RDF t
 [] a :Email ;
    :sender     :person1 ;
    :receiver   :person2 ;
-   :year       2017 .
-   :attachment '01.pdf'
+   :year       2017 ;
+   :attachment '01.pdf' .
 \end{verbatim}
 \end{scriptsize}
 \caption{Example of input RDF data}
@@ -285,7 +287,7 @@ PREFIX : <http://example.org/>
 (p1:person)-[:supervised_by]->(p2:person)
     ?p1 :supervised_by ?p2 .
 (p1:person)-[:emailed {year:y, attachment:a}]->(p2:person)
-    ?f a :Email
+    ?f a :Email ;
        :sender   ?p1 ;
        :receiver ?p2 ;
        :year     ?y .
@@ -314,7 +316,7 @@ PREFIX : <http://example.org/>
 \begin{figure}
 \center
 \includegraphics[width=0.5\textwidth]{pg_example5.png}
-\caption{Visualization of Figure 5}
+\caption{Example of output PG data (Visualization)}
 \label{fig:pg_example5}
 \end{figure}
 
@@ -469,7 +471,7 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 \subsection{Using DBpedia}
  
 Figure~\ref{fig:conversion} schematically illustrates an example of the G2G mapping to convert RDF data retrieved from DBpedia into PG data. 
-Focusing on a relationship where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, this information can be represented in the PG shown on the right side of the figure. The relationships are originally presented as independent resources \texttt{?g}. In the mapping, we map \texttt{?g}, \texttt{?n}, and \texttt{?s} onto a PG edge labeled 'same_group' with attributes. Such compaction by mapping is useful in many use cases, for example, when users are just interested in relationships between musicians.
+Focusing on a relationship where two musicians (\texttt{?m1} and \texttt{?m2}) belong to the same group, this information can be represented in the PG shown on the right side of the figure. The relationships are originally presented as independent resources \texttt{?g}. In the mapping, we map \texttt{?g}, \texttt{?n}, and \texttt{?s} onto a PG edge labeled \texttt{same\_group} with attributes. Such compaction by mapping is useful in many use cases, for example, when users are just interested in relationships between musicians.
  
 \begin{figure}
 \center
@@ -561,13 +563,13 @@ Figure~\ref{fig:sparql} shows queries to retrieve the pairs of musicians that ar
 
 
 \section{Availability}
-The prototype implementation is written in JavaScript and can be executed using Node.js in the command line. It has an endpoint mode and a local file mode. The local file mode uses Apache Jena ARQ to execute SPARQL queries internally, while the endpoint mode accesses SPARQL endpoints via the Internet. An example of the usage in the endpoint mode is as follows:
+The prototype implementation of G2G mapping is written in JavaScript and can be executed using Node.js in the command line. It has an endpoint mode and a local file mode. The local file mode uses Apache Jena ARQ to execute SPARQL queries internally, while the endpoint mode accesses SPARQL endpoints via the Internet. An example of the usage in the endpoint mode is as follows:
 
 \texttt{\$ g2g musician.g2g http://dbpedia.org/sparql}
 
 \noindent where the first argument is a G2GML description file, and the second argument is the target SPARQL endpoint, which provides the source RDF dataset.
 
-Furthermore, a Docker image (\url{https://hub.docker.com/r/g2glab/g2g}) and a demonstration site of the G2G mapping framework (\url{http://g2g.fun}) are also available (Figure~\ref{fig:sandbox}).
+Furthermore, a Docker image (\url{https://hub.docker.com/r/g2glab/g2g}) and a demonstration site of the G2G mapping framework (\url{https://purl.org/g2gml}) are available (Figure~\ref{fig:sandbox}).
 
 \begin{figure}
 \center
